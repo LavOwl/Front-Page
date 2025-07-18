@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: news-archive
+    restart: always
+    volumes:
+      - news-archive:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=archive
+    
+  scraper:
+    build: ./panopticon
+    container_name: "news-spiders"
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_DB=archive
+    command: ["python", "main.py"]
+
+  api:
+    build: ./api
+    container_name: news-backend
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_DB=archive
+
+  frontend:
+    build: ./frontpage
+    container_name: news-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+volumes:
+  news-archive:
