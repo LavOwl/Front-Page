@@ -10,7 +10,7 @@ Personal project including:
   
 🗐 Mongo database, for storing all the news for longterm access.  
 ⇄ Fast API Backend to provide web access to the database.  
-⚛︎ React Frontend to visualize the news in an orderly manner, features include:  
+⚛︎ React + Tailwind Frontend to visualize the news in an orderly manner, features include:  
   - Listing the news  
   - Stats - In development...  
   - Search - In development...  
