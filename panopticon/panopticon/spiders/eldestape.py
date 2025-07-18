@@ -23,7 +23,7 @@ class EldestapeSpider(DoomScroller):
     def forbidden_domains(self) -> List[str]:
         return []
 
-
+    #Falta agregar parseo para En Vivo
     def parse_article(self, response: Response) -> Generator[ArticleDict, None, None]:
         yield {
             "url": response.url,

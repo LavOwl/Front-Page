@@ -30,7 +30,7 @@ class TiempoArgentinoSpider(DoomScroller):
         }
 
     def parse_body(self, response: Response):
-        content = response.xpath("//div[contains(@class, 'art-column-w-lpadding')]//p | //div[contains(@class, 'art-column-w-lpadding')]//h2")
+        content = response.xpath("//*[contains(@class, 'article-body')]//div//p | //div[contains(@class, 'article-body')]//div//h2")
         parts: List[str] = []
         for el in content:
             #tag = el.root.tag
