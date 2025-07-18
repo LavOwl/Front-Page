@@ -2,12 +2,14 @@ from datetime import datetime, timedelta, time
 import time as time_module
 import pytz
 
+from typing import List
+from scrapy import Spider
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from panopticon.spiders import lanacion, clarin, c5n, eldestape, infobae, pagina12, tiempoargentino
 
 TIMEZONE = pytz.timezone("America/Argentina/Buenos_Aires")
-SPIDERS = [
+SPIDERS: List[type[Spider]] = [
     lanacion.LaNacionSpider,
     clarin.ClarinSpider,
     c5n.C5nSpider,

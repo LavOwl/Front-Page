@@ -1,24 +1,23 @@
 from panopticon.spiders.doomscroller import DoomScroller
 from datetime import datetime
+from typing import Generator, List
+from scrapy.http import Response
+from ..classes.article_dictionary import ArticleDict
 
 class TiempoArgentinoSpider(DoomScroller):
-    name = "tiempoargentino"
-    allowed_domains = ["tiempoar.com.ar"]
-   
-   
-    @property
-    def start_urls(self):
-        return ["https://www.tiempoar.com.ar"]
+    name: str = "tiempoargentino"
+    allowed_domains: List[str] = ["tiempoar.com.ar"]
+    start_urls: List[str] = ["https://www.tiempoar.com.ar"]
 
     @property
-    def subdomains(self):
+    def subdomains(self) -> List[str]:
         return ["/ta_article/"]
     
     @property
-    def forbidden_domains(self):
+    def forbidden_domains(self) -> List[str]:
         return []
 
-    def parse_article(self, response):
+    def parse_article(self, response: Response) -> Generator[ArticleDict, None, None]:
         yield {
             "url": response.url,
             "title": response.css("h1::text").get(),
@@ -27,12 +26,12 @@ class TiempoArgentinoSpider(DoomScroller):
             "date": self.parse_date(response),
             "body": self.parse_body(response),
             "tags": response.css("div.tag div.content a p::text").getall(),
-            "diary": "Tiempo Argentino"
+            "newspaper": "Tiempo Argentino"
         }
 
-    def parse_body(self, response):
+    def parse_body(self, response: Response):
         content = response.xpath("//div[contains(@class, 'art-column-w-lpadding')]//p | //div[contains(@class, 'art-column-w-lpadding')]//h2")
-        parts = []
+        parts: List[str] = []
         for el in content:
             #tag = el.root.tag
 
@@ -41,6 +40,8 @@ class TiempoArgentinoSpider(DoomScroller):
         
         return '\n'.join(parts)
 
-    def parse_date(self, response):
-        raw_date = response.css("time::text").get()
-        return datetime.strptime(raw_date + " 00:00", '%d/%m/%Y %H:%M')
+    def parse_date(self, response: Response):
+        raw_date: str | None = response.css("time::text").get()
+        if raw_date:
+            return datetime.strptime(raw_date + " 00:00", '%d/%m/%Y %H:%M')
+        return datetime.now()

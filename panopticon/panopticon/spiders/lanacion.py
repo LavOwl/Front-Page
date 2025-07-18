@@ -1,5 +1,8 @@
 from panopticon.spiders.doomscroller import DoomScroller
 from datetime import datetime
+from typing import Generator, List
+from scrapy.http import Response
+from ..classes.article_dictionary import ArticleDict
 
 spanish_months = {
     'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
@@ -9,22 +12,19 @@ spanish_months = {
 
 
 class LaNacionSpider(DoomScroller):
-    name = "lanacion"
-    allowed_domains = ["lanacion.com.ar"]
-    
-    @property
-    def start_urls(self):
-        return ["https://www.lanacion.com.ar/politica/"]
+    name: str = "lanacion"
+    allowed_domains: List[str] = ["lanacion.com.ar"]
+    start_urls: List[str] = ["https://www.lanacion.com.ar/politica/"]
 
     @property
     def subdomains(self):
         return ["/politica/"]
 
     @property
-    def forbidden_domains(self):
+    def forbidden_domains(self) -> List[str]:
         return []
 
-    def parse_article(self, response):
+    def parse_article(self, response: Response) -> Generator[ArticleDict, None, None]:
         yield {
             "url": response.url,
             "title": response.css("h1::text").get(),
@@ -32,17 +32,17 @@ class LaNacionSpider(DoomScroller):
             "author": list(dict.fromkeys(response.xpath("//a[contains(@href, 'autor')]//text()").getall())),
             "body": self.parse_body(response),
             "date": self.parse_date(response),
-            "tags": response.xpath("//a[contains(@href, '/tema/')]//text()"),
-            "diary": "La Nación"
+            "tags": response.xpath("//a[contains(@href, '/tema/')]//text()").getall(),
+            "newspaper": "La Nación"
         }
 
-    def parse_body(self, response):
+    def parse_body(self, response: Response):
         content = response.xpath(
             "//p[contains(@class, 'com-paragraph')] | "
-            "//h2[contains(@class, 'com-title')] | "
+            "//h2[contains(@class, 'com-title')]"
         )
 
-        parts = []
+        parts: List[str] = []
         for el in content:
             #tag = el.root.tag
 
@@ -51,7 +51,7 @@ class LaNacionSpider(DoomScroller):
 
         return '\n'.join(parts)
 
-    def parse_date(self, response):
+    def parse_date(self, response: Response):
         date, time = response.css("time::text").getall()
 
         day, month_name, year = date.split(' de ')
